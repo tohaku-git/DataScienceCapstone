@@ -30,7 +30,7 @@ A user can input any phrase into the text box. Once the user submits the phase, 
 
 A user is expected to input a phrase in the text box on the UI side of the Shiny app. The input phrase is passed to the server side of the Shiny app so that the trained model predicts the next word. Then the predicted words are passed to the UI side and displayed in the order of likelihood.
 
-The UI side logic is described in ui.R and the server side logic is in server.R. The model is trained in advance and loaded in server.R. See the [GitHub repository](https://github.com/tohaku-git/DataScienceCapstone/ngram) if needed.
+The UI side logic is described in ui.R and the server side logic is in server.R. The model is trained in advance and loaded in server.R. See the [GitHub repository](https://github.com/tohaku-git/DataScienceCapstone) if needed.
 
 ## Algorithm
 
