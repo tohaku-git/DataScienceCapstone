@@ -1,0 +1,169 @@
+---
+title: "Milestone Report"
+author: "Tohaku"
+date: '2023-04-02'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This report is aimed to explore text data collected by SwiftKey. Firstly, the data files are summarized. Secondly, plots for the word frequencies are provided. Finally, a next-word prediction algorithm is briefly described.  
+
+## Set-up
+
+```{r,message=FALSE}
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(quanteda)
+library(quanteda.textstats)
+```
+
+## Loading Data
+
+```{r}
+blogs_path <- "./final/en_US/en_US.blogs.txt"
+con <- file(blogs_path, open = "rb"); 
+blogs <- readLines(con, encoding = "UTF-8", skipNul = TRUE); 
+close(con)
+```
+
+```{r}
+news_path <- "final/en_US/en_US.news.txt"
+con <- file(news_path, open = "rb"); 
+news <- readLines(con, encoding = "UTF-8", skipNul = TRUE); 
+close(con)
+```
+
+```{r}
+twitter_path <- "./final/en_US/en_US.twitter.txt"
+con <- file(twitter_path, open = "rb"); 
+twitter <- readLines(con, encoding = "UTF-8", skipNul = TRUE); 
+close(con)
+```
+
+## Summary of the Data Sets
+
+```{r}
+file_name <- c("en_US.blogs.txt","en_US.news.txt","en_US.twitter.txt")
+file_size <- file.size(c(blogs_path,news_path,twitter_path))/1024^2
+line_count <- sapply(list(blogs,news,twitter), length)
+word_count <- sapply(list(blogs,news,twitter), 
+                     function(x) sum(str_count(x,"\\w+")))
+summary <- tibble(`File Name` = file_name,
+                  `File Size (MB)` = file_size,
+                  `Line Counts` = line_count,
+                  `Word Counts` = word_count)
+summary
+```
+
+## Exploratory Analysis
+
+Let's sample 1% of the lines from each file.  
+
+```{r}
+set.seed(1234)
+blogs_sample <- sample(blogs, size = line_count[1] * 0.01)
+news_sample <- sample(news, size = line_count[2] * 0.01)
+twitter_sample <- sample(twitter, size = line_count[3] * 0.01)
+
+rm(blogs)
+rm(news)
+rm(twitter)
+```
+
+Let's summarize unigram, bigram, and trigram frequencies using the sampled datasets. 
+
+```{r}
+token <- function(x) {
+  x |> 
+    tokens(remove_numbers = TRUE,  remove_punct = TRUE) |>
+    tokens_wordstem(language = quanteda_options("language_stemmer"))
+}
+
+unigram <- function(x) {
+  x |> 
+    tokens_remove(stopwords("en")) |>
+    dfm() |> 
+    textstat_frequency(n = 10)
+}
+
+ngram <- function(x,n) {
+  x |> 
+    tokens_ngrams(n = n) |>
+    dfm() |> 
+    textstat_frequency(n = 10)
+}
+
+freq_plot <- function(data, title) {
+ggplot(data,aes(x = reorder(feature, frequency), y = frequency)) +
+  geom_point() +
+  coord_flip() +
+  labs(x = NULL, y = "Frequency") +
+  labs(title = title) +
+  theme_minimal()
+}
+```
+
+```{r}
+blogs_token <- token(blogs_sample)
+blogs_uni <- unigram(blogs_token)
+freq_plot(blogs_uni, "Unigram Frequencies in Blog Samples")
+```
+
+```{r}
+blogs_bi <- ngram(blogs_token,2)
+freq_plot(blogs_bi, "Bigram Frequencies in Blog Samples")
+```
+
+
+```{r}
+blogs_tri <- ngram(blogs_token,3)
+freq_plot(blogs_tri, "Trigram Frequencies in Blog Samples")
+```
+
+```{r}
+news_token <- token(news_sample)
+news_uni <- unigram(news_token)
+freq_plot(news_uni, "Unigram Frequencies in News Samples")
+```
+
+```{r}
+news_bi <- ngram(news_token,2)
+freq_plot(news_bi, "Bigram Frequencies in News Samples")
+```
+
+
+```{r}
+news_tri <- ngram(news_token,3)
+freq_plot(news_tri, "Trigram Frequencies in News Samples")
+```
+
+```{r}
+twitter_token <- token(twitter_sample)
+twitter_uni <- unigram(twitter_token)
+freq_plot(twitter_uni, "Unigram Frequencies in Twitter Samples")
+```
+
+
+```{r}
+twitter_bi <- ngram(twitter_token,2)
+freq_plot(twitter_bi, "Bigram Frequencies in Twitter Samples")
+```
+
+```{r}
+twitter_tri <- ngram(twitter_token,3)
+freq_plot(twitter_tri, "Trigram Frequencies in Twitter Samples")
+```
+
+## Findings
+
+The Twitter samples include many subjective words like love and thank. The news samples include many objective words like said and year in contrast. The blog samples are in between.
+
+## Plans for Prediction Algorithm and Shiny App
+
+The Stupid Bake-off algorithm will be used for the next-word prediction. The model will be trained with unigram, bigram, and trigram samples from the blogs, news, and Twitter files. The [sbo package](https://vgherard.github.io/sbo/) will be used for the implementation. The trained model will be uploaded onto the server side of the Shiny app and used for prediction based on a phrase input on the UI side of the Shiny app.

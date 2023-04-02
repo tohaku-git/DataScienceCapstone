@@ -1,0 +1,13 @@
+name: ngram
+title: ngram
+username:
+account: tohaku
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8744579
+bundleId: 7039416
+url: https://tohaku.shinyapps.io/ngram/
+when: 1680455276.01554
+lastSyncTime: 1680455276.0156
+asMultiple: FALSE
+asStatic: FALSE

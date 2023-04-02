@@ -1,0 +1,39 @@
+---
+title: "Next-Word Prediction"
+author: "Tohaku"
+date: '2023-04-02'
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+A [Shiny app](https://tohaku.shinyapps.io/ngram/) for predicting the next word following a given phrase is developed. The prediction model is trained using text data collected by SwiftKey. In this presentation, the Shiny app and the underlying prediction model are explained in the following order:
+
+- User Interface
+- App Design
+- Algorithm
+
+## User Interface
+
+The user interface consists of three components: the text box for inputting a phrase, the submit button, and the main panel that shows predicted words.
+
+At the launch, the text box has the default phrase, Good. As the prediction of the next word following Good, the app displays morning, luck, and to in the order of likelihood.
+
+A user can input any phrase into the text box. Once the user submits the phase, the prediction results will be updated.
+
+
+## App Design
+
+A user is expected to input a phrase in the text box on the UI side of the Shiny app. The input phrase is passed to the server side of the Shiny app so that the trained model predicts the next word. Then the predicted words are passed to the UI side and displayed in the order of likelihood.
+
+The UI side logic is described in ui.R and the server side logic is in server.R. The model is trained in advance and loaded in server.R. See the [GitHub repository](https://github.com/tohaku-git/DataScienceCapstone/ngram) if needed.
+
+## Algorithm
+
+The Stupid Bake-off algorithm is used for the next-word prediction. The model is trained with unigram, bigram, and trigram samples from the blogs, news, and Twitter files collected by SwiftKey. The [sbo package](https://vgherard.github.io/sbo/) is used for the implementation.
+
+An exploratory analysis of the training data was conducted before the model training. The analysis results are given in the [milestone report](https://rpubs.com/Tohaku/1023317).

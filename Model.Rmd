@@ -1,0 +1,70 @@
+---
+title: "Model"
+author: "Tohaku"
+date: '2023-04-02'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Set-up
+
+```{r}
+library(sbo)
+library(dplyr)
+```
+
+## Loading Data
+
+```{r}
+blogs_path <- "./final/en_US/en_US.blogs.txt"
+con <- file(blogs_path, open = "rb"); 
+blogs <- readLines(con, encoding = "UTF-8", skipNul = TRUE); 
+close(con)
+```
+
+```{r}
+news_path <- "final/en_US/en_US.news.txt"
+con <- file(news_path, open = "rb"); 
+news <- readLines(con, encoding = "UTF-8", skipNul = TRUE); 
+close(con)
+```
+
+```{r}
+twitter_path <- "./final/en_US/en_US.twitter.txt"
+con <- file(twitter_path, open = "rb"); 
+twitter <- readLines(con, encoding = "UTF-8", skipNul = TRUE); 
+close(con)
+```
+
+```{r}
+line_count <- sapply(list(blogs,news,twitter), length)
+
+set.seed(1234)
+blogs_sample <- sample(blogs, size = line_count[1] * 0.03)
+news_sample <- sample(news, size = line_count[2] * 0.03)
+twitter_sample <- sample(twitter, size = line_count[3] * 0.03)
+
+rm(blogs)
+rm(news)
+rm(twitter)
+```
+
+## Modelling
+
+```{r}
+f <- 
+  kgram_freqs_fast(corpus = c(blogs_sample, news_sample, twitter_sample),
+                   N = 3,
+                   lower_case = TRUE,
+                   EOS = ".?!:;",
+                   dict = target ~ 0.9)
+```
+
+```{r}
+t <- sbo_predtable(f)
+saveRDS(t,file="./ngram/t.rda")
+```
+
